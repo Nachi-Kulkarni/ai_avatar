@@ -7,7 +7,7 @@ import {
   useVoiceAssistant,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
-import { Track } from "livekit-client";
+import { Track, ConnectionState, RoomEvent } from "livekit-client";
 
 import { fetchToken, type TokenResponse } from "../lib/api";
 import { useAppointments, type Appointment } from "../hooks/useAppointments";
@@ -193,17 +193,32 @@ function CallRoom({
   onSummaryChange,
   onEventsChange,
   onDurationChange,
+  onConnectionStateChange,
 }: {
   sessionId: string;
   onAppointmentsChange: (appointments: Appointment[]) => void;
   onSummaryChange: (summary: CallSummary | null) => void;
   onEventsChange: (events: ToolEvent[]) => void;
   onDurationChange: (seconds: number) => void;
+  onConnectionStateChange: (state: ConnectionState) => void;
 }) {
   const room = useRoomContext();
   const { state: agentState, audioTrack, videoTrack } = useVoiceAssistant();
   const agentTranscriptions = usePreferredAgentTranscriptionSegments();
   const [callDuration, setCallDuration] = useState(0);
+
+  // Track actual LiveKit connection state
+  useEffect(() => {
+    const updateState = (state: ConnectionState) => onConnectionStateChange(state);
+    onConnectionStateChange(room.state);
+    room.on(RoomEvent.ConnectionStateChanged, updateState);
+    room.on(RoomEvent.Connected, () => onConnectionStateChange(ConnectionState.Connected));
+    room.on(RoomEvent.Disconnected, () => onConnectionStateChange(ConnectionState.Disconnected));
+    room.on(RoomEvent.Reconnecting, () => onConnectionStateChange(ConnectionState.Reconnecting));
+    return () => {
+      room.off(RoomEvent.ConnectionStateChanged, updateState);
+    };
+  }, [room, onConnectionStateChange]);
 
   const toolEvents = useToolEvents(sessionId);
   const callerUserId = useMemo(() => lastVerifiedUserId(toolEvents), [toolEvents]);
@@ -245,6 +260,11 @@ function CallRoom({
     [agentTranscriptions]
   );
 
+  // Determine UI connection state from actual room + agent state
+  const isConnected = room.state === ConnectionState.Connected;
+  const isConnecting = room.state === ConnectionState.Connecting ||
+    room.state === ConnectionState.Reconnecting;
+
   return (
     <div className="call-shell">
       <header className="call-header">
@@ -276,8 +296,8 @@ function CallRoom({
 
       <footer className="call-footer">
         <CallControls
-          isConnected={true}
-          isConnecting={false}
+          isConnected={isConnected}
+          isConnecting={isConnecting}
           onStart={() => {}}
           onEnd={() => room.disconnect()}
           agentState={agentState}
@@ -323,6 +343,11 @@ export function CallScreen() {
 
   const handleDurationChange = useCallback((duration: number) => {
     disconnectSnapshotRef.current.duration = duration;
+  }, []);
+
+  const handleConnectionStateChange = useCallback((state: ConnectionState) => {
+    // Exposed for debugging — logs the actual room connection lifecycle.
+    console.log("[CallScreen] LiveKit connection state:", state);
   }, []);
 
   const handleStart = useCallback(async () => {
@@ -476,6 +501,7 @@ export function CallScreen() {
         onSummaryChange={handleSummaryChange}
         onEventsChange={handleEventsChange}
         onDurationChange={handleDurationChange}
+        onConnectionStateChange={handleConnectionStateChange}
       />
     </LiveKitRoom>
   );

@@ -1,0 +1,10 @@
+livekit-agents[deepgram,cartesia,silero,turn-detector]~=1.5
+livekit-plugins-openai~=1.5
+livekit-plugins-bey~=1.5
+fastapi~=0.115
+uvicorn[standard]~=0.34
+python-dotenv~=1.1
+supabase~=2.15
+httpx~=0.28
+pydantic~=2.11
+pydantic-settings~=2.9

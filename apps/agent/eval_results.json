@@ -1,0 +1,1678 @@
+[
+  {
+    "scenario_id": 1,
+    "scenario_name": "Happy Path — Book General Medicine",
+    "category": "booking",
+    "score": 7.7,
+    "reasoning": "The assistant was warm and followed the main booking steps, but it used a numbered list for slot options and misplaced the list_departments tool call. Tool calling had an extra and a missing call, and the end_conversation arguments were malformed.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 7,
+      "TOOL_CALLING_ACCURACY": 6,
+      "FLOW_CORRECTNESS": 8,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 9,
+      "OVERALL": 7.7,
+      "reasoning": "The assistant was warm and followed the main booking steps, but it used a numbered list for slot options and misplaced the list_departments tool call. Tool calling had an extra and a missing call, and the end_conversation arguments were malformed.",
+      "critical_failures": [
+        "Missing expected list_departments tool call in Turn 3",
+        "Extra list_departments tool call in Turn 2",
+        "Numbered list of slots in spoken response (violates no-list rule)",
+        "Malformed user_id argument in end_conversation tool call"
+      ],
+      "improvement_suggestions": [
+        "Invoke list_departments only after asking the user to choose a department, not as an extra call.",
+        "Present slot options in natural language without using lists or bullet points.",
+        "Validate and correctly format all tool arguments, ensuring complete user_id values."
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Hi, I want to book an appointment",
+        "assistant_response": "Sure! Could you share your name and phone number so I can get you set up?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "My name is Rahul, my number is 9876543210",
+        "assistant_response": "Sure Rahul Which department would you like to book General Medicine Cardiology Dermatology Orthopedics Pediatrics Dental?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Rahul\",\"phone\":\"9876543210\"}"
+          },
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "I need a general checkup",
+        "assistant_response": "Here are the available slots for General Medicine:\n\n1. 29 Apr 2026 09:00‑09:30 UTC  \n2. 29 Apr 2026 10:00‑10:30 UTC  \n3. 29 Apr 2026 11:00‑11:30 UTC  \n4. 30 Apr 2026 09:00‑09:30 UTC  \n5. 30 Apr 2026 10:00‑10:30 UTC  \n\nJust tell me the number of the slot you’d like to book.",
+        "tool_calls": [
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":1}"
+          }
+        ],
+        "expected_tools": [
+          "list_departments",
+          "fetch_slots"
+        ],
+        "matched": [
+          "fetch_slots"
+        ],
+        "missing": [
+          "list_departments"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Tomorrow 9 AM works",
+        "assistant_response": "Your appointment for a General Medicine check‑up is booked for 29 April 2026 09:00‑09:30 UTC. Your confirmation number is **appt‑1111‑2222‑3333**. Let me know if there’s anything else I can help you with.",
+        "tool_calls": [
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"action\":\"book\",\"appointment_id\":\"1\",\"details\":\"...\"}"
+          },
+          {
+            "name": "book_appointment",
+            "arguments": "{\"department_id\":1,\"reason\":\"General checkup\",\"slot_end_at\":\"2026-04-29T09:30:00+00:00\",\"slot_start_at\":\"2026-04-29T09:00:00+00:00\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "matched": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 4,
+        "user_message": "Thanks, bye",
+        "assistant_response": "You're welcome, Rahul! Have a great day.",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"session_id\":\"eval-session\",\"summary_notes\":\"Rahul (phone +919876543210) booked a General Medicine appointment for 29 April 2026 09:00-09:30 UTC (appointment ID appt-1111-2222-3333).\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "end_conversation"
+        ],
+        "matched": [
+          "end_conversation"
+        ],
+        "missing": [],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 2,
+    "scenario_name": "Department Selection — Cardiology",
+    "category": "booking",
+    "score": 8.5,
+    "reasoning": "The assistant used a warm, natural tone and correctly identified the user before booking, confirming the chosen slot and providing an appointment ID. However, it made an unnecessary 'list_departments' tool call and fetched slots before the department was explicitly confirmed, resulting in a mismatch with expected tool calls and a slight flow ordering issue.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 9,
+      "TOOL_CALLING_ACCURACY": 7,
+      "FLOW_CORRECTNESS": 8,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 8.5,
+      "reasoning": "The assistant used a warm, natural tone and correctly identified the user before booking, confirming the chosen slot and providing an appointment ID. However, it made an unnecessary 'list_departments' tool call and fetched slots before the department was explicitly confirmed, resulting in a mismatch with expected tool calls and a slight flow ordering issue.",
+      "critical_failures": [
+        "Unexpected tool call 'list_departments' at Turn 2",
+        "Missing expected 'fetch_slots' call at Turn 3"
+      ],
+      "improvement_suggestions": [
+        "Remove the unnecessary 'list_departments' call and only invoke it if needed.",
+        "Call 'fetch_slots' after the user explicitly confirms the department (i.e., at Turn 3) to align with expected flow."
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Hello, I need a cardiology appointment",
+        "assistant_response": "Sure! Could I get your name and phone number (10‑digit Indian mobile) to set up the appointment?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "I'm Priya Sharma, phone 9988776655",
+        "assistant_response": "Here are the available cardiology slots:\n\n1 – April 29 2026 09:00 to 09:30 UTC  \n2 – April 29 2026 10:00 to 10:30 UTC  \n3 – April 29 2026 11:00 to 11:30 UTC  \n4 – April 30 2026 09:00 to 09:30 UTC  \n5 – April 30 2026 10:00 to 10:30 UTC  \n\nPlease let me know which slot number you’d like.",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Priya Sharma\",\"phone\":\"9988776655\"}"
+          },
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":2}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments",
+          "fetch_slots"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Cardiology department please",
+        "assistant_response": "Which slot number would you like to book?",
+        "tool_calls": [],
+        "expected_tools": [
+          "fetch_slots"
+        ],
+        "matched": [],
+        "missing": [
+          "fetch_slots"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Let's do the 10 AM slot tomorrow",
+        "assistant_response": "Your cardiology appointment is confirmed for April 29 2026, 10:00 – 10:30 UTC. The appointment ID is appt-1111-2222-3333.\n\nIs there anything else I can help you with today?",
+        "tool_calls": [
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"action\":\"book\",\"appointment_id\":\"2\",\"details\":\"Booking cardiology slot on 2026-04-29 from 10:00 to 10:30 UTC\"}"
+          },
+          {
+            "name": "book_appointment",
+            "arguments": "{\"department_id\":2,\"reason\":\"Cardiology consultation\",\"slot_end_at\":\"2026-04-29T10:30:00+00:00\",\"slot_start_at\":\"2026-04-29T10:00:00+00:00\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "matched": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 4,
+        "user_message": "Great, that's all",
+        "assistant_response": "Thank you for calling MyKare.ai. Your cardiology appointment is booked. Have a wonderful day!",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"session_id\":\"eval-session\",\"summary_notes\":\"Booked cardiology appointment for Priya Sharma (phone 9988776655) on 2026-04-29 from 10:00 to 10:30 UTC, appointment ID appt-1111-2222-3333.\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "end_conversation"
+        ],
+        "matched": [
+          "end_conversation"
+        ],
+        "missing": [],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 3,
+    "scenario_name": "Retrieve Appointments",
+    "category": "retrieval",
+    "score": 8.1,
+    "reasoning": "The assistant responded politely but used bullet points, reducing natural conversational tone. Tool calls were incorrect: retrieve_appointments was called prematurely and omitted later, harming tool calling accuracy. Flow remained largely correct, and no errors occurred, with full adherence to the instruction set.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 7,
+      "TOOL_CALLING_ACCURACY": 6,
+      "FLOW_CORRECTNESS": 9,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 8.1,
+      "reasoning": "The assistant responded politely but used bullet points, reducing natural conversational tone. Tool calls were incorrect: retrieve_appointments was called prematurely and omitted later, harming tool calling accuracy. Flow remained largely correct, and no errors occurred, with full adherence to the instruction set.",
+      "critical_failures": [
+        "Unexpected retrieve_appointments call on Turn 2",
+        "Missing retrieve_appointments call on Turn 3"
+      ],
+      "improvement_suggestions": [
+        "Separate identify_user and retrieve_appointments calls, invoking retrieve_appointments only after identity is confirmed, preferably on the next turn.",
+        "Present appointment details in natural conversational sentences rather than bullet lists.",
+        "Align tool calls exactly with expected sequence to improve tool calling accuracy."
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Hi, can I see my appointments?",
+        "assistant_response": "Sure, could you share yourphone number, please?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "My phone is 9876543210",
+        "assistant_response": "Here’s your upcoming appointment:\n\n• Department: General Medicine  \n• Date & time: 29 April 2026, 09:00 – 09:30 UTC  \n• Reason: general checkup  \n\nLet me know if you’d like to reschedule, cancel, or need anything else.",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"phone\":\"9876543210\"}"
+          },
+          {
+            "name": "retrieve_appointments",
+            "arguments": "{\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "retrieve_appointments"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Yes show me what I have booked",
+        "assistant_response": "You have one upcoming appointment:\n\n- Department: General Medicine  \n- Date & time:29 April 2026, 09:00 – 09:30 UTC  \n- Reason: general checkup  \n\nLet me know if you’d like to reschedule, cancel, or need anything else.",
+        "tool_calls": [],
+        "expected_tools": [
+          "retrieve_appointments"
+        ],
+        "matched": [],
+        "missing": [
+          "retrieve_appointments"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Okay thanks, goodbye",
+        "assistant_response": "Thank you for calling MyKare. Have a great day!",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"user_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\", \"summary_notes\": \"User reviewed upcoming appointment: General Medicine on 2026-04-29 09:00-09:30 UTC, reason: general checkup.\"}"
+          }
+        ],
+        "expected_tools": [
+          "end_conversation"
+        ],
+        "matched": [
+          "end_conversation"
+        ],
+        "missing": [],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 4,
+    "scenario_name": "Cancel Existing Appointment",
+    "category": "cancellation",
+    "score": 8.6,
+    "reasoning": "The assistant maintained a warm, natural tone and correctly confirmed and cancelled the appointment while following most procedural rules. However, it made tool‑calling errors by invoking retrieve_appointments unexpectedly in Turn 2 and omitting the expected retrieve_appointments call in Turn 3, leading to a lower tool‑calling accuracy score. The overall flow remained logical, but the mismatched tool usage prevented a perfect rating.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 10,
+      "TOOL_CALLING_ACCURACY": 6,
+      "FLOW_CORRECTNESS": 9,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 8.6,
+      "reasoning": "The assistant maintained a warm, natural tone and correctly confirmed and cancelled the appointment while following most procedural rules. However, it made tool‑calling errors by invoking retrieve_appointments unexpectedly in Turn 2 and omitting the expected retrieve_appointments call in Turn 3, leading to a lower tool‑calling accuracy score. The overall flow remained logical, but the mismatched tool usage prevented a perfect rating.",
+      "critical_failures": [
+        "Unexpected retrieve_appointments call in Turn 2 (extra tool call).",
+        "Missing retrieve_appointments call in Turn 3 (expected tool not called)."
+      ],
+      "improvement_suggestions": [
+        "Adjust the assistant's logic to call retrieve_appointments only after the user confirms they want to cancel, matching the expected sequence.",
+        "Ensure all expected tool calls are made (identify_user → retrieve_appointments → record_confirmation → cancel_appointment) and avoid extra or duplicate calls."
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "I need to cancel my appointment",
+        "assistant_response": "Sure, could you please share your phone number (and name if you’d like) so I can find your appointment?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "Phone 9876543210",
+        "assistant_response": "I see you have an appointment on 29 April 2026 at 9:00 AM for General Medicine. Would you like to cancel this appointment?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"phone\":\"9876543210\"}"
+          },
+          {
+            "name": "retrieve_appointments",
+            "arguments": "{\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "retrieve_appointments"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Yes cancel it, I can't make it",
+        "assistant_response": "Your appointment for General Medicine on 29 April 2026 at 9:00 AM has been cancelled. Is there anything else I can help you with?",
+        "tool_calls": [
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"action\":\"cancel\",\"appointment_id\":\"appt-1111-2222-3333\",\"details\":\"User requested cancellation via phone.\"}"
+          },
+          {
+            "name": "cancel_appointment",
+            "arguments": "{\"appointment_id\":\"appt-1111-2222-3333\",\"cancellation_reason\":\"User can't make it\"}"
+          }
+        ],
+        "expected_tools": [
+          "retrieve_appointments",
+          "record_confirmation",
+          "cancel_appointment"
+        ],
+        "matched": [
+          "record_confirmation",
+          "cancel_appointment"
+        ],
+        "missing": [
+          "retrieve_appointments"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Thanks, bye",
+        "assistant_response": "You're welcome! Have a great day.",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"session_id\":\"eval-session\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\"summary_notes\":\"Cancelled General Medicine appointment on 2026-04-29 at 09:00 per user request.\"}"
+          }
+        ],
+        "expected_tools": [
+          "end_conversation"
+        ],
+        "matched": [
+          "end_conversation"
+        ],
+        "missing": [],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 5,
+    "scenario_name": "Reschedule Appointment",
+    "category": "modification",
+    "score": 8.8,
+    "reasoning": "The assistant responded in a warm, natural tone and followed all conversational and policy guidelines. However, it made tool-calling errors by invoking retrieve_appointments unnecessarily early and omitting it later when expected, reducing tool-calling accuracy. Flow and other dimensions remained strong.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 10,
+      "TOOL_CALLING_ACCURACY": 6,
+      "FLOW_CORRECTNESS": 10,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 8.8,
+      "reasoning": "The assistant responded in a warm, natural tone and followed all conversational and policy guidelines. However, it made tool-calling errors by invoking retrieve_appointments unnecessarily early and omitting it later when expected, reducing tool-calling accuracy. Flow and other dimensions remained strong.",
+      "critical_failures": [
+        "Missing expected retrieve_appointments call at Turn 3",
+        "Unexpected retrieve_appointments call at Turn 2"
+      ],
+      "improvement_suggestions": [
+        "Call retrieve_appointments only when needed, ensuring it occurs before modifying an appointment if not already retrieved",
+        "Avoid extra tool calls that are not part of the defined workflow"
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "I need to reschedule my appointment",
+        "assistant_response": "Sure, could you share your phone number (and name if you’d like) so I can pull up your appointment?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "My number is 9876543210",
+        "assistant_response": "I see you have a General Medicine appointment on 29 April 2026 at 9 AM. What new date or time would work best for you to reschedule?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"phone\":\"9876543210\"}"
+          },
+          {
+            "name": "retrieve_appointments",
+            "arguments": "{\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "retrieve_appointments"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Move it to the next day instead, 10 AM",
+        "assistant_response": "Your appointment has been moved to 30 April 2026, 10 AM – 10:30 AM in General Medicine. Let me know if there’s anything else.",
+        "tool_calls": [
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":1}"
+          },
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"action\":\"modify\",\"appointment_id\":\"appt-1111-2222-3333\",\"details\":\"Reschedule to 2026-04-30 10:00-10:30\"}"
+          },
+          {
+            "name": "modify_appointment",
+            "arguments": "{\"appointment_id\":\"appt-1111-2222-3333\",\"new_department_id\":1,\"new_slot_end_at\":\"2026-04-30T10:30:00+00:00\",\"new_slot_start_at\":\"2026-04-30T10:00:00+00:00\"}"
+          }
+        ],
+        "expected_tools": [
+          "retrieve_appointments",
+          "fetch_slots",
+          "record_confirmation",
+          "modify_appointment"
+        ],
+        "matched": [
+          "fetch_slots",
+          "record_confirmation",
+          "modify_appointment"
+        ],
+        "missing": [
+          "retrieve_appointments"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Perfect, thanks!",
+        "assistant_response": "You’re welcome! Have a great day.",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"session_id\":\"eval-session\",\"summary_notes\":\"Rescheduled appointment appt-1111-2222-3333 to 2026-04-30 10:00-10:30 General Medicine.\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "end_conversation"
+        ],
+        "matched": [
+          "end_conversation"
+        ],
+        "missing": [],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 6,
+    "scenario_name": "Invalid Phone Number",
+    "category": "error_handling",
+    "score": 7.9,
+    "reasoning": "The assistant responded warmly and naturally, handling the invalid phone number gracefully. However, it missed the required identify_user tool call on the second turn and made extra tool calls (list_departments and end_conversation), reducing tool-calling accuracy and flow correctness.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 9,
+      "TOOL_CALLING_ACCURACY": 6,
+      "FLOW_CORRECTNESS": 7,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 7.9,
+      "reasoning": "The assistant responded warmly and naturally, handling the invalid phone number gracefully. However, it missed the required identify_user tool call on the second turn and made extra tool calls (list_departments and end_conversation), reducing tool-calling accuracy and flow correctness.",
+      "critical_failures": [
+        "Missing identify_user tool call after user provided an invalid phone number (Turn 2)",
+        "Unexpected list_departments tool call before user requested department options (Turn 3)",
+        "Unexpected end_conversation tool call on user farewell (Turn 4)"
+      ],
+      "improvement_suggestions": [
+        "Call identify_user whenever a phone number is provided, even if it appears invalid, to trigger validation and error handling.",
+        "Only invoke list_departments after confirming user identity and after the user asks for department options.",
+        "Reserve end_conversation for appropriate termination scenarios or let the conversation end naturally without an extra tool call."
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Hi I want to book",
+        "assistant_response": "Sure! Could you share your phone number and name, please?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "My number is 12345",
+        "assistant_response": "Thanks! Could you please share a valid 10‑digit phone number and your name?",
+        "tool_calls": [],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [],
+        "missing": [
+          "identify_user"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Oh sorry, it's 9876543210",
+        "assistant_response": "Great, Rahul! Which department would you like to book an appointment with—General Medicine, Cardiology, Dermatology, Orthopedics, Pediatrics, or Dental?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"phone\":\"9876543210\"}"
+          },
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments"
+        ]
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Never mind, bye",
+        "assistant_response": "Thank you for calling MyKare. Have a wonderful day!",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"user_id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\", \"summary_notes\": \"User Rahul (phone +919876543210) expressed interest in booking an appointment, asked for department options, then decided not to proceed and said goodbye.\"}"
+          }
+        ],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": [
+          "end_conversation"
+        ]
+      }
+    ]
+  },
+  {
+    "scenario_id": 7,
+    "scenario_name": "Double Booking Prevention",
+    "category": "error_handling",
+    "score": 6.6,
+    "reasoning": "The assistant used a warm, natural tone and correctly gathered user details, but it failed to detect the double‑booking request and did not suggest alternatives. It also made unnecessary tool calls and omitted required calls such as fetch_slots and book_appointment for the second booking, breaking the expected flow.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 9,
+      "TOOL_CALLING_ACCURACY": 6,
+      "FLOW_CORRECTNESS": 6,
+      "ERROR_HANDLING": 6,
+      "INSTRUCTION_ADHERENCE": 7,
+      "OVERALL": 6.6,
+      "reasoning": "The assistant used a warm, natural tone and correctly gathered user details, but it failed to detect the double‑booking request and did not suggest alternatives. It also made unnecessary tool calls and omitted required calls such as fetch_slots and book_appointment for the second booking, breaking the expected flow.",
+      "critical_failures": [
+        "Did not handle double‑booking error",
+        "Missing fetch_slots call before confirming second booking",
+        "Missing book_appointment call for second request",
+        "Extra list_departments call not required"
+      ],
+      "improvement_suggestions": [
+        "Add a check for existing appointments before booking and respond with a double‑booking warning and alternative slots",
+        "Ensure fetch_slots is called before any booking confirmation",
+        "Call book_appointment only after confirming slot availability",
+        "Avoid unnecessary tool calls like list_departments unless needed"
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Book me for tomorrow 9 AM general medicine",
+        "assistant_response": "Sure! Could you share your phone number (and name, if you’d like) so I can set up your booking?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "Rahul, 9876543210",
+        "assistant_response": "I have a 9 AM – 9:30 AM slot tomorrow (April 29) in General Medicine. Would you like to book that slot?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Rahul\",\"phone\":\"9876543210\"}"
+          },
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":1}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments",
+          "fetch_slots"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Yes 9 AM tomorrow",
+        "assistant_response": "Your appointment is confirmedfor General Medicine on April 29 2026 from 09:00 to 09:30 UTC. The appointment ID is appt‑1111‑2222‑3333. Let me know if you need anything else.",
+        "tool_calls": [
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"action\":\"book\",\"appointment_id\":\"1\",\"details\":\"General Medicine appointment on 2026-04-29 from 09:00 to 09:30 UTC\"}"
+          },
+          {
+            "name": "book_appointment",
+            "arguments": "{\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\"department_id\":1,\"slot_start_at\":\"2026-04-29T09:00:00+00:00\",\"slot_end_at\":\"2026-04-29T09:30:00+00:00\"}"
+          }
+        ],
+        "expected_tools": [
+          "fetch_slots",
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "matched": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "missing": [
+          "fetch_slots"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Now book me the same slot again",
+        "assistant_response": "Sure thing! Could you share your phone number (and name if you’d like) so I can set up the new booking?",
+        "tool_calls": [],
+        "expected_tools": [
+          "book_appointment"
+        ],
+        "matched": [],
+        "missing": [
+          "book_appointment"
+        ],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 8,
+    "scenario_name": "No Available Slots",
+    "category": "error_handling",
+    "score": 8.7,
+    "reasoning": "The assistant kept a warm, natural tone and handled the empty dental slots gracefully, offering alternatives. However, it made an unnecessary call to list_departments (and an extra fetch_slots for another department) that were not required. Overall flow and adherence to instructions were solid.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 9,
+      "TOOL_CALLING_ACCURACY": 7,
+      "FLOW_CORRECTNESS": 9,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 8.7,
+      "reasoning": "The assistant kept a warm, natural tone and handled the empty dental slots gracefully, offering alternatives. However, it made an unnecessary call to list_departments (and an extra fetch_slots for another department) that were not required. Overall flow and adherence to instructions were solid.",
+      "critical_failures": [
+        "Unexpected tool call: list_departments"
+      ],
+      "improvement_suggestions": [
+        "Avoid calling list_departments when not needed; only invoke fetch_slots for the department requested or after confirming the user wants alternatives."
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "I need a dental appointment",
+        "assistant_response": "Sure, I’d be happy to help you book a dental appointment. Could I have your name and phone number, please?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "Phone 9876543210, name Ankit",
+        "assistant_response": "I see this number is already on file for Rahul. If that’s you, I’ll go ahead and check dental slots for you. If it’s a different person, could you please share another phone number?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Ankit\",\"phone\":\"9876543210\"}"
+          },
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Dental please",
+        "assistant_response": "I’m sorry, there are no dental slots available right now. I can check other departments for you— for example, General Medicine has openings at 9 am, 10 am, 11 am on April 29 and at 9 am, 10 am on April 30. Would you like me to look at those, or would you prefer to wait for a dental slot to open?",
+        "tool_calls": [
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":6}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":1}"
+          }
+        ],
+        "expected_tools": [
+          "fetch_slots"
+        ],
+        "matched": [
+          "fetch_slots"
+        ],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Oh nothing available? Bye then",
+        "assistant_response": "You're welcome! Take care and have a great day.",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"session_id\":\"eval-session\",\"summary_notes\":\"User requested a dental appointment but no slots were available. Conversation ended.\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "end_conversation"
+        ],
+        "matched": [
+          "end_conversation"
+        ],
+        "missing": [],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 9,
+    "scenario_name": "Medical Advice Refusal",
+    "category": "edge_case",
+    "score": 8.8,
+    "reasoning": "The assistant correctly refused medical advice, collected user details, and booked the appointment while following the required steps. However, it made an unnecessary call to list_departments and presented slot options as a bullet list, which reduced conversational naturalness. Overall the flow and compliance were solid.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 8,
+      "TOOL_CALLING_ACCURACY": 7,
+      "FLOW_CORRECTNESS": 10,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 8.8,
+      "reasoning": "The assistant correctly refused medical advice, collected user details, and booked the appointment while following the required steps. However, it made an unnecessary call to list_departments and presented slot options as a bullet list, which reduced conversational naturalness. Overall the flow and compliance were solid.",
+      "critical_failures": [],
+      "improvement_suggestions": [
+        "Remove the unnecessary list_departments tool call to match expected behavior",
+        "Present available slots in a conversational sentence rather than a bullet list to improve naturalness"
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Hi, I have a headache, what medicine should I take?",
+        "assistant_response": "I’m sorry, I can’t give medical advice, but I can help you schedule an appointment with one of our doctors. Let me know if you’d like to book a visit.",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "Okay fine, can I book an appointment then?",
+        "assistant_response": "Sure, I can help with that. Could you please share your phone number (and your name, if you’d like) so I can get your record started?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 2,
+        "user_message": "My number is 9123456789, name Deepa",
+        "assistant_response": "Sure, Deepa. Which department would you like to book an appointment with? (e.g., General Medicine, Pediatrics, Dermatology, Cardiology, Dental)",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Deepa\",\"phone\":\"9123456789\"}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "General medicine, tomorrow morning",
+        "assistant_response": "Here are the available slots for General Medicine:\n\n- Slot 1: 09:00 – 09:30 on 29 Apr 2026 (UTC)\n- Slot 2: 10:00 – 10:30 on 29 Apr 2026 (UTC)\n- Slot 3: 11:00 – 11:30 on 29 Apr 2026 (UTC)\n- Slot 4: 09:00 – 09:30 on 30 Apr 2026 (UTC)\n- Slot 5: 10:00 – 10:30 on 30 Apr 2026 (UTC)\n\nPlease let me know which slot you’d like to book.",
+        "tool_calls": [
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":1}"
+          }
+        ],
+        "expected_tools": [
+          "fetch_slots"
+        ],
+        "matched": [
+          "fetch_slots"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments"
+        ]
+      },
+      {
+        "turn_index": 4,
+        "user_message": "The 9 AM one please",
+        "assistant_response": "Your General Medicine appointment is booked for 29 April 2026 from 09:00 to 09:30 UTC. Your appointment ID is appt-1111-2222-3333. Let me know if there’s anything else I can help you with.",
+        "tool_calls": [
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"action\":\"book\",\"appointment_id\":\"slot-1\",\"details\":\"Booking General Medicine slot on 2026-04-29 from 09:00 to 09:30 for user Deepa\"}"
+          },
+          {
+            "name": "book_appointment",
+            "arguments": "{\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\"department_id\":1,\"slot_start_at\":\"2026-04-29T09:00:00+00:00\",\"slot_end_at\":\"2026-04-29T09:30:00+00:00\",\"reason\":\"General Medicine appointment\"}"
+          }
+        ],
+        "expected_tools": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "matched": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 5,
+        "user_message": "Thanks, bye!",
+        "assistant_response": "You’re welcome! Your appointment is confirmed. Have a great day!",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"session_id\":\"eval-session\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\"summary_notes\":\"Booked General Medicine appointment for Deepa on 2026-04-29 09:00-09:30 UTC (appointment ID appt-1111-2222-3333).\"}"
+          }
+        ],
+        "expected_tools": [
+          "end_conversation"
+        ],
+        "matched": [
+          "end_conversation"
+        ],
+        "missing": [],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 10,
+    "scenario_name": "Incomplete Information",
+    "category": "edge_case",
+    "score": 8.6,
+    "reasoning": "The assistant was warm and natural, correctly identified the user, and handled the no‑slot situation gracefully. However, it made unexpected tool calls (list_departments and an extra fetch_slots) and booked a General Medicine slot without explicitly confirming the department choice.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 10,
+      "TOOL_CALLING_ACCURACY": 6,
+      "FLOW_CORRECTNESS": 9,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 8.6,
+      "reasoning": "The assistant was warm and natural, correctly identified the user, and handled the no‑slot situation gracefully. However, it made unexpected tool calls (list_departments and an extra fetch_slots) and booked a General Medicine slot without explicitly confirming the department choice.",
+      "critical_failures": [
+        "Unexpected tool call list_departments",
+        "Extra fetch_slots call for unrelated department",
+        "Booked appointment without explicit department confirmation"
+      ],
+      "improvement_suggestions": [
+        "Call only fetch_slots for the department the user requests",
+        "Avoid unnecessary list_departments calls",
+        "Ask the user to confirm the chosen department before booking"
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "I want to book",
+        "assistant_response": "Sure, may I have your name and phone number to get started?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "My name is Vijay",
+        "assistant_response": "Thanks, Vijay! Could you please share your phone number so I can look up your profile?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Oh right, phone is 9876543210",
+        "assistant_response": "Great! Which department would you like to schedule an appointment with (for example, Cardiology, Dental, Pediatrics, etc.)?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Vijay\",\"phone\":\"9876543210\"}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "I want dental",
+        "assistant_response": "I’m sorry, we don’t have any dental slots available at the moment. I can check other departments for you or let you know as soon as a dental slot opens. What would you like to do?",
+        "tool_calls": [
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":6}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":1}"
+          }
+        ],
+        "expected_tools": [
+          "fetch_slots"
+        ],
+        "matched": [
+          "fetch_slots"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments"
+        ]
+      },
+      {
+        "turn_index": 4,
+        "user_message": "The first slot please",
+        "assistant_response": "Your appointment is confirmed for General Medicine on 2026‑04‑29 from 09:00 to 09:30 UTC.  \nAppointment ID: appt-1111-2222-3333  \n\nLet me know if there’s anything else I can help you with.",
+        "tool_calls": [
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"action\":\"book\",\"appointment_id\":\"1\",\"details\":\"User confirmed booking General Medicine slot ID 1 from 2026-04-29T09:00:00+00:00 to 2026-04-29T09:30:00+00:00\"}"
+          },
+          {
+            "name": "book_appointment",
+            "arguments": "{\"department_id\":1,\"reason\":\"General consultation\",\"slot_end_at\":\"2026-04-29T09:30:00+00:00\",\"slot_start_at\":\"2026-04-29T09:00:00+00:00\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "matched": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "missing": [],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 11,
+    "scenario_name": "Department Switch",
+    "category": "edge_case",
+    "score": 6.3,
+    "reasoning": "The assistant correctly adapted to the department change and booked the right appointment, but relied on bullet lists, gave a mismatched slot time, and omitted the required end_conversation tool. Extra and malformed tool calls further reduced accuracy.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 6,
+      "TOOL_CALLING_ACCURACY": 5,
+      "FLOW_CORRECTNESS": 7,
+      "ERROR_HANDLING": 5,
+      "INSTRUCTION_ADHERENCE": 9,
+      "OVERALL": 6.3,
+      "reasoning": "The assistant correctly adapted to the department change and booked the right appointment, but relied on bullet lists, gave a mismatched slot time, and omitted the required end_conversation tool. Extra and malformed tool calls further reduced accuracy.",
+      "critical_failures": [
+        "Missing end_conversation tool call",
+        "Extra tool calls (list_departments, fetch_slots) in Turn 2",
+        "Malformed book_appointment tool call",
+        "Incorrect appointment time in confirmation message"
+      ],
+      "improvement_suggestions": [
+        "Call only the expected tools with correct arguments, especially for book_appointment",
+        "Add an end_conversation tool call after the final response",
+        "Ensure the confirmation message reflects the exact slot the user selected",
+        "Use natural conversational phrasing without bullet-point lists"
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Book me for cardiology",
+        "assistant_response": "Sure! CouldI have your name and phone number to get started?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "Phone 9876543210, Suresh",
+        "assistant_response": "Here are the cardiology slots we have:\n\n- Slot 1: 2026‑04‑29 09:00 – 09:30 UTC  \n- Slot 2: 2026‑04‑29 10:00 – 10:30 UTC  \n- Slot 3: 2026‑04‑29 11:00 – 11:30 UTC  \n- Slot 4: 2026‑04‑30 09:00 – 09:30 UTC  \n- Slot 5: 2026‑04‑30 10:00 – 10:30 UTC  \n\nPlease let me know which slot you’d like to book (just the slot number).",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Suresh\",\"phone\":\"9876543210\"}"
+          },
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":2}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments",
+          "fetch_slots"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Actually wait, I want dermatology instead",
+        "assistant_response": "Here are the dermatology slots available:\n\n- Slot 1: 2026‑04‑29 09:00 – 09:30 UTC  \n- Slot 2: 2026‑04‑29 10:00 – 10:30 UTC  \n- Slot 3: 2026‑04‑29 11:00 – 11:30 UTC  \n- Slot 4: 2026‑04‑30 09:00 – 09:30 UTC  \n- Slot 5: 2026‑04‑30 10:00 – 10:30 UTC  \n\nWhich slot would you like to book?",
+        "tool_calls": [
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":3}"
+          }
+        ],
+        "expected_tools": [
+          "fetch_slots"
+        ],
+        "matched": [
+          "fetch_slots"
+        ],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "The 11 AM slot please",
+        "assistant_response": "Your dermatology appointment is confirmed.\n\n- Appointment ID: appt‑1111‑2222‑3333  \n- Date & time: 2026‑04‑29 09:00 – 09:30 UTC  \n- Department: Dermatology  \n\nLet me know if there’s anything else I can help you with.",
+        "tool_calls": [
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"action\":\"book\",\"appointment_id\":\"slot-3\",\"details\":\"User Suresh (phone 9876543210) booking dermatology slot on 2026-04-29T11:00:00+00:00 to 2026-04-29T11:30:00+00:00\"}"
+          },
+          {
+            "name": "book_appointment",
+            "arguments": "{\"department_id\":3,\"idempotency_key\":\"booking-9876543210-20260429-1100\",\"slot_end_at\":\"2026-04-29T11:30:00+00:00\",\"slot_start_at\":\"2026-04-29T11:00:00+00:00\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "matched": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 4,
+        "user_message": "Great thanks!",
+        "assistant_response": "You’re welcome! If you need anything else, just let me know.",
+        "tool_calls": [],
+        "expected_tools": [
+          "end_conversation"
+        ],
+        "matched": [],
+        "missing": [
+          "end_conversation"
+        ],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 12,
+    "scenario_name": "Rapid Fire — All Info Upfront",
+    "category": "booking",
+    "score": 8.4,
+    "reasoning": "The assistant responded warmly and correctly identified the user, confirmed the appointment, and provided a proper closing summary. However, it missed the expected fetch_slots call in the first turn and made unnecessary extra tool calls, reducing tool-calling accuracy.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 9,
+      "TOOL_CALLING_ACCURACY": 6,
+      "FLOW_CORRECTNESS": 9,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 8.4,
+      "reasoning": "The assistant responded warmly and correctly identified the user, confirmed the appointment, and provided a proper closing summary. However, it missed the expected fetch_slots call in the first turn and made unnecessary extra tool calls, reducing tool-calling accuracy.",
+      "critical_failures": [
+        "Missing expected fetch_slots tool call in Turn 1",
+        "Unnecessary extra tool calls in Turn 2 (list_departments, fetch_slots, identify_user)"
+      ],
+      "improvement_suggestions": [
+        "Call fetch_slots immediately after receiving the user's time preference in the same turn.",
+        "Avoid redundant tool calls; only invoke necessary tools such as identify_user, fetch_slots, record_confirmation, and book_appointment."
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Hi I'm Meera, phone 9988776655, need a pediatrics appointment for tomorrow morning",
+        "assistant_response": "I see we have a record for Rahul with this phone number. Would you like me to update the name on the account to Meera?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Meera\",\"phone\":\"9988776655\"}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user",
+          "fetch_slots"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [
+          "fetch_slots"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "The 9 AM one please",
+        "assistant_response": "",
+        "tool_calls": [
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":5}"
+          },
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Meera\",\"phone\":\"9988776655\"}"
+          },
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"appointment_id\":\"new_appointment\",\"action\":\"book\",\"details\":\"Pediatrics slot on 2026-04-29 at 09:00\"}"
+          },
+          {
+            "name": "book_appointment",
+            "arguments": "{\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\"department_id\":5,\"slot_start_at\":\"2026-04-29T09:00:00+00:00\",\"slot_end_at\":\"2026-04-29T09:30:00+00:00\",\"reason\":\"Pediatrics appointment\"}"
+          }
+        ],
+        "expected_tools": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "matched": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments",
+          "fetch_slots",
+          "identify_user"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "That's all, bye!",
+        "assistant_response": "Your appointment is confirmed for 9 AM tomorrow. Have a great day!",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"session_id\":\"eval-session\",\"summary_notes\":\"Meera (user ID a1b2c3d4-e5f6-7890-abcd-ef1234567890) booked a Pediatrics appointment for 2026-04-29 at 09:00 to 09:30.\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "end_conversation"
+        ],
+        "matched": [
+          "end_conversation"
+        ],
+        "missing": [],
+        "unexpected": []
+      }
+    ]
+  },
+  {
+    "scenario_id": 13,
+    "scenario_name": "Quick Goodbye",
+    "category": "edge_case",
+    "score": 8.7,
+    "reasoning": "The assistant greeted politely but used slightly robotic phrasing, especially \"Conversation ended.\" which feels less natural. It also called end_conversation unnecessarily, creating an unexpected tool call despite providing a valid user_id.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 7,
+      "TOOL_CALLING_ACCURACY": 7,
+      "FLOW_CORRECTNESS": 10,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 10,
+      "OVERALL": 8.7,
+      "reasoning": "The assistant greeted politely but used slightly robotic phrasing, especially \"Conversation ended.\" which feels less natural. It also called end_conversation unnecessarily, creating an unexpected tool call despite providing a valid user_id.",
+      "critical_failures": [],
+      "improvement_suggestions": [
+        "Remove the unnecessary end_conversation tool call for quick goodbye scenarios.",
+        "Use a more natural farewell like \"Alright, have a great day!\" instead of \"Conversation ended.\"."
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Hello",
+        "assistant_response": "Hello welcome to Mykare clinic how can I help you today",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "Actually I changed my mind, bye",
+        "assistant_response": "Conversation ended. Thank you for calling!",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"session_id\":\"eval-session\",\"summary_notes\":\"User said goodbye without providing phone number or making any appointment changes.\",\"user_id\":\"guest\"}"
+          }
+        ],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": [
+          "end_conversation"
+        ]
+      }
+    ]
+  },
+  {
+    "scenario_id": 14,
+    "scenario_name": "Cancel Non-Existent Appointment",
+    "category": "error_handling",
+    "score": 7.2,
+    "reasoning": "The assistant used a warm, natural tone, but it invoked unexpected tools, omitted a confirmation step before cancellation, and failed to retrieve appointments on the second cancel request, causing flow and adherence problems.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 10,
+      "TOOL_CALLING_ACCURACY": 6,
+      "FLOW_CORRECTNESS": 6,
+      "ERROR_HANDLING": 9,
+      "INSTRUCTION_ADHERENCE": 7,
+      "OVERALL": 7.2,
+      "reasoning": "The assistant used a warm, natural tone, but it invoked unexpected tools, omitted a confirmation step before cancellation, and failed to retrieve appointments on the second cancel request, causing flow and adherence problems.",
+      "critical_failures": [
+        "Cancelled the appointment without first confirming the user's intent",
+        "Did not call retrieve_appointments before handling the second cancellation request",
+        "Performed extra tool calls (record_confirmation, cancel_appointment) that were not expected at that point"
+      ],
+      "improvement_suggestions": [
+        "Add a clear confirmation prompt before executing any cancellation",
+        "Always retrieve the user's appointments before attempting to cancel to verify existence",
+        "Limit tool calls to those required for the current conversational step",
+        "Gracefully handle cases where no appointments exist and inform the user accordingly"
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Cancel my appointment please",
+        "assistant_response": "Sure, could you please share your phone number (and your name if you’d like) so I can locate your appointment?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "Phone 9123456789",
+        "assistant_response": "Your appointment for General Medicine on 2026‑04‑29 at 09:00 UTC has been cancelled.\n\nIs there anything else I can help you with?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"phone\":\"9123456789\"}"
+          },
+          {
+            "name": "retrieve_appointments",
+            "arguments": "{\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          },
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"appointment_id\":\"appt-1111-2222-3333\",\"action\":\"cancel\",\"details\":\"User requested cancellation of appointment\"}"
+          },
+          {
+            "name": "cancel_appointment",
+            "arguments": "{\"appointment_id\":\"appt-1111-2222-3333\",\"cancellation_reason\":\"User requested cancellation\"}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user"
+        ],
+        "matched": [
+          "identify_user"
+        ],
+        "missing": [],
+        "unexpected": [
+          "retrieve_appointments",
+          "record_confirmation",
+          "cancel_appointment"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Yes cancel it",
+        "assistant_response": "I’ve already cancelled the only upcoming appointment on your record. At the moment you have no scheduled appointments.\n\nIf there’s another appointment you’d like to cancel, please let me know the date, time, or department so I can locate it for you.",
+        "tool_calls": [],
+        "expected_tools": [
+          "retrieve_appointments"
+        ],
+        "matched": [],
+        "missing": [
+          "retrieve_appointments"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Oh I don't have any? Sorry bye",
+        "assistant_response": "Thank you for calling MyKare. Have a great day!",
+        "tool_calls": [
+          {
+            "name": "end_conversation",
+            "arguments": "{\"session_id\":\"eval-session\",\"summary_notes\":\"Cancelled General Medicine appointment on 2026-04-29 at 09:00 UTC. No upcoming appointments remain.\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": [
+          "end_conversation"
+        ]
+      }
+    ]
+  },
+  {
+    "scenario_id": 15,
+    "scenario_name": "Full Lifecycle",
+    "category": "full_lifecycle",
+    "score": 6.5,
+    "reasoning": "The assistant sounded warm and natural, using friendly language throughout the dialogue. However, it made several tool‑calling mistakes—extra and missing calls broke the expected flow, especially during the appointment‑view and reschedule steps. These gaps also violated the instruction to call record_confirmation before any mutation.",
+    "breakdown": {
+      "CONVERSATIONAL_QUALITY": 9,
+      "TOOL_CALLING_ACCURACY": 5,
+      "FLOW_CORRECTNESS": 5,
+      "ERROR_HANDLING": 10,
+      "INSTRUCTION_ADHERENCE": 6,
+      "OVERALL": 6.5,
+      "reasoning": "The assistant sounded warm and natural, using friendly language throughout the dialogue. However, it made several tool‑calling mistakes—extra and missing calls broke the expected flow, especially during the appointment‑view and reschedule steps. These gaps also violated the instruction to call record_confirmation before any mutation.",
+      "critical_failures": [
+        "Extra list_departments call in Turn 2",
+        "Missing retrieve_appointments call in Turn 4",
+        "Missing record_confirmation and modify_appointment calls in Turn 5",
+        "Incorrect tool call ordering and omission of required mutation calls"
+      ],
+      "improvement_suggestions": [
+        "Remove unnecessary list_departments calls and only invoke tools that are required for the current intent.",
+        "After confirming the phone number, call retrieve_appointments to actually fetch and display the user's appointments.",
+        "When rescheduling, first call record_confirmation, then modify_appointment with the new slot details, ensuring the correct order of calls.",
+        "Validate that every expected tool is invoked and that no extra tools are called to maintain strict adherence to the scenario's flow."
+      ]
+    },
+    "error": "",
+    "turns": [
+      {
+        "turn_index": 0,
+        "user_message": "Hi, book me a general medicine appointment",
+        "assistant_response": "Sure, could you share your phone number (and name if you’d like) so I can set up the booking?",
+        "tool_calls": [],
+        "expected_tools": [],
+        "matched": [],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 1,
+        "user_message": "Rahul, 9876543210",
+        "assistant_response": "Here are the next available General Medicine slots:\n\nSlot 1 – 2026‑04‑29 from 09:00 to 09:30 UTC  \nSlot 2 – 2026‑04‑29 from 10:00 to 10:30 UTC  \nSlot 3 – 2026‑04‑29 from 11:00 to 11:30 UTC  \nSlot 4 – 2026‑04‑30 from 09:00 to 09:30 UTC  \nSlot 5 – 2026‑04‑30 from 10:00 to 10:30 UTC  \n\nWhich slot would you like to book?",
+        "tool_calls": [
+          {
+            "name": "identify_user",
+            "arguments": "{\"name\":\"Rahul\",\"phone\":\"9876543210\"}"
+          },
+          {
+            "name": "list_departments",
+            "arguments": "{}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":1}"
+          }
+        ],
+        "expected_tools": [
+          "identify_user",
+          "fetch_slots"
+        ],
+        "matched": [
+          "identify_user",
+          "fetch_slots"
+        ],
+        "missing": [],
+        "unexpected": [
+          "list_departments"
+        ]
+      },
+      {
+        "turn_index": 2,
+        "user_message": "Tomorrow 9 AM",
+        "assistant_response": "Your General Medicine appointment is booked for 2026‑04‑29 at 09:00 UTC (09:30 UTC end). Appointment ID is appt‑1111‑2222‑3333. Let me know if you need anything else.",
+        "tool_calls": [
+          {
+            "name": "record_confirmation",
+            "arguments": "{\"action\":\"book\",\"appointment_id\":\"slot_1\",\"details\":\"Booking General Medicine slot on 2026-04-29 from 09:00 to 09:30 UTC for Rahul\"}"
+          },
+          {
+            "name": "book_appointment",
+            "arguments": "{\"department_id\":1,\"reason\":\"General consultation\",\"slot_end_at\":\"2026-04-29T09:30:00+00:00\",\"slot_start_at\":\"2026-04-29T09:00:00+00:00\",\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          }
+        ],
+        "expected_tools": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "matched": [
+          "record_confirmation",
+          "book_appointment"
+        ],
+        "missing": [],
+        "unexpected": []
+      },
+      {
+        "turn_index": 3,
+        "user_message": "Can you show my appointments?",
+        "assistant_response": "Sure thing! Could you please confirm the phone number you’d like me to look up?",
+        "tool_calls": [],
+        "expected_tools": [
+          "retrieve_appointments"
+        ],
+        "matched": [],
+        "missing": [
+          "retrieve_appointments"
+        ],
+        "unexpected": []
+      },
+      {
+        "turn_index": 4,
+        "user_message": "Actually reschedule it to 10 AM",
+        "assistant_response": "Sure thing—let’s move your appointment to the 10 AM slot. Could you please confirm your phone number so I can update the booking?",
+        "tool_calls": [
+          {
+            "name": "retrieve_appointments",
+            "arguments": "{\"user_id\":\"a1b2c3d4-e5f6-7890-abcd-ef1234567890\"}"
+          },
+          {
+            "name": "fetch_slots",
+            "arguments": "{\"department_id\":1}"
+          }
+        ],
+        "expected_tools": [
+          "fetch_slots",
+          "record_confirmation",
+          "modify_appointment"
+        ],
+        "matched": [
+          "fetch_slots"
+        ],
+        "missing": [
+          "record_confirmation",
+          "modify_appointment"
+        ],
+        "unexpected": [
+          "retrieve_appointments"
+        ]
+      }
+    ]
+  }
+]
